@@ -123,6 +123,18 @@ void main() {
     expect(executedItems.length, 1);
     expect(storage.items.isEmpty, true); // Bad item deleted from queue
   });
+
+  test('Calling clear should delete all items from queue storage', () async {
+    networkMonitor.isOnlineValue = false; // Keep offline so they accumulate
+    await queue.enqueue(id: 'item-1', url: 'api/1', method: 'POST');
+    await queue.enqueue(id: 'item-2', url: 'api/2', method: 'POST');
+
+    expect(storage.items.length, 2);
+
+    await queue.clear();
+
+    expect(storage.items.isEmpty, true);
+  });
 }
 
 // ── Manual Mock Classes ───────────────────────────────────────────────

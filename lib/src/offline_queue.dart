@@ -59,6 +59,12 @@ class OfflineQueue {
     _connectivitySub?.cancel();
   }
 
+  /// Purges all enqueued elements in local storage.
+  Future<void> clear() async {
+    _logger?.call('Purging all enqueued items from local storage.');
+    await _storage.clear();
+  }
+
   /// Enqueues a new mutation to local storage.
   ///
   /// If immediate connectivity is available, it executes immediately.
