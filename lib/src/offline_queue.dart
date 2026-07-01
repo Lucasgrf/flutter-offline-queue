@@ -21,8 +21,10 @@ class OfflineQueue {
   
   final Duration _baseBackoff;
   final int _maxAttempts;
+  final void Function(String message)? _logger;
 
   bool _isProcessing = false;
+  bool _disposed = false;
   StreamSubscription<bool>? _connectivitySub;
 
   OfflineQueue({
@@ -31,15 +33,19 @@ class OfflineQueue {
     required QueueExecutor executor,
     Duration baseBackoff = const Duration(seconds: 2),
     int maxAttempts = 5,
+    void Function(String message)? logger,
   })  : _storage = storage,
         _networkMonitor = networkMonitor,
         _executor = executor,
         _baseBackoff = baseBackoff,
-        _maxAttempts = maxAttempts;
+        _maxAttempts = maxAttempts,
+        _logger = logger;
 
   /// Starts listening to network change events to trigger automatic sync loops.
   void initialize() {
+    _logger?.call('Initializing OfflineQueue: listening to connectivity changes.');
     _connectivitySub = _networkMonitor.onConnectivityChanged.listen((isOnline) {
+      _logger?.call('Connectivity changed: isOnline = $isOnline');
       if (isOnline) {
         triggerSync();
       }
@@ -48,6 +54,8 @@ class OfflineQueue {
 
   /// Cancels network listeners. Call this when disposing controllers/blocs.
   void dispose() {
+    _logger?.call('Disposing OfflineQueue background listeners.');
+    _disposed = true;
     _connectivitySub?.cancel();
   }
 
@@ -71,11 +79,15 @@ class OfflineQueue {
       timestamp: DateTime.now(),
     );
 
+    _logger?.call('Enqueuing mutation item [${item.id}]: ${item.method} to ${item.url}');
     await _storage.save(item);
 
     final online = await _networkMonitor.isConnected;
     if (online) {
+      _logger?.call('Device is online, triggering sync immediately.');
       triggerSync();
+    } else {
+      _logger?.call('Device is offline, mutation item cached locally.');
     }
   }
 
@@ -83,13 +95,18 @@ class OfflineQueue {
   ///
   /// Prevents concurrent processing loops using a state lock.
   Future<void> triggerSync() async {
-    if (_isProcessing) return;
+    if (_isProcessing) {
+      _logger?.call('Sync already in progress, skipping trigger.');
+      return;
+    }
     _isProcessing = true;
 
+    _logger?.call('Starting offline queue synchronization routine.');
     try {
       await _processQueue();
     } finally {
       _isProcessing = false;
+      _logger?.call('Offline queue synchronization routine finished.');
     }
   }
 
@@ -98,29 +115,35 @@ class OfflineQueue {
     while (true) {
       // Fetch latest pending elements
       final pending = await _storage.getAllPending();
-      if (pending.isEmpty) break;
+      if (pending.isEmpty) {
+        _logger?.call('No pending items in queue.');
+        break;
+      }
 
       // Ensure we are still online
       final online = await _networkMonitor.isConnected;
-      if (!online) break;
+      if (!online) {
+        _logger?.call('Device lost connectivity during sync, aborting.');
+        break;
+      }
 
       final item = pending.first;
+      _logger?.call('Processing item [${item.id}]: executing network call...');
 
       try {
         final success = await _executor(item);
 
         if (success) {
-          // Success: delete from storage and continue loop
+          _logger?.call('Item [${item.id}] executed successfully. Removing from cache.');
           await _storage.delete(item.id);
         } else {
-          // Temporary failure: reschedule with backoff and stop queue processing
+          _logger?.call('Item [${item.id}] failed due to temporary issues.');
           await _handleTemporaryFailure(item);
           break;
         }
       } catch (e) {
-        // Critical exception: discard malformed item or log to prevent blockages
+        _logger?.call('Item [${item.id}] threw unrecoverable exception: $e. Discarding to avoid queue lock.');
         await _storage.delete(item.id);
-        // Resumes queue processing for remaining elements
       }
     }
   }
@@ -128,7 +151,7 @@ class OfflineQueue {
   /// Updates attempts and schedules a delay before processing restarts.
   Future<void> _handleTemporaryFailure(QueueItem item) async {
     if (item.attempts >= _maxAttempts) {
-      // Discard item if retry limit is exceeded (prevents infinite lockups)
+      _logger?.call('Item [${item.id}] exceeded maximum retry attempts ($_maxAttempts). Discarding.');
       await _storage.delete(item.id);
       return;
     }
@@ -144,9 +167,13 @@ class OfflineQueue {
     final jitter = (Random().nextDouble() * 0.2 - 0.1) * backoffMillis;
     final finalDelay = Duration(milliseconds: (backoffMillis + jitter).round());
 
+    _logger?.call('Rescheduling sync trigger for item [${item.id}] in ${finalDelay.inMilliseconds}ms (backoff: ${updated.attempts} attempt).');
+
     // Delay future triggers
     Future.delayed(finalDelay, () {
-      triggerSync();
+      if (!_disposed) {
+        triggerSync();
+      }
     });
   }
 }
