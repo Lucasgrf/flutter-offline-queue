@@ -2,7 +2,8 @@
 
 A clean, modular, and robust offline synchronization queue library for Flutter and Dart applications.
 
-[![Pub Version](https://img.shields.io/pub/v/flutter_offline_queue?color=blue)](https://pub.dev)
+[![Dart SDK](https://img.shields.io/badge/Dart-%3E%3D3.0.0-0175C2?logo=dart&logoColor=white)](https://dart.dev)
+[![Case Study](https://img.shields.io/badge/Case%20Study-lucasgrf.vercel.app-111827)](https://lucasgrf.vercel.app/projects/flutter-offline-queue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 📌 Problem & Context
