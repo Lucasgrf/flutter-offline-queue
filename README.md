@@ -2,6 +2,7 @@
 
 A clean, modular, and robust offline synchronization queue library for Flutter and Dart applications.
 
+[![pub package](https://img.shields.io/pub/v/resilient_offline_queue.svg?color=0175C2)](https://pub.dev/packages/resilient_offline_queue)
 [![Dart SDK](https://img.shields.io/badge/Dart-%3E%3D3.0.0-0175C2?logo=dart&logoColor=white)](https://dart.dev)
 [![Case Study](https://img.shields.io/badge/Case%20Study-lucasgrf.vercel.app-111827)](https://lucasgrf.vercel.app/projects/flutter-offline-queue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -51,6 +52,12 @@ graph TD
 ---
 
 ## 🚀 Getting Started
+
+### Installation
+
+```bash
+dart pub add resilient_offline_queue
+```
 
 ### 1. Define custom Storage & Network adapters
 
