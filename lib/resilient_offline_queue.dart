@@ -2,7 +2,7 @@
 ///
 /// Abstrai a fila local de requisições, permitindo sincronização offline-first
 /// automática por monitoramento de rede e retentativas com backoff exponencial.
-library flutter_offline_queue;
+library resilient_offline_queue;
 
 export 'src/queue_item.dart';
 export 'src/queue_storage.dart';

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter_offline_queue/flutter_offline_queue.dart';
+import 'package:resilient_offline_queue/resilient_offline_queue.dart';
 
 void main() async {
   // 1. Initialize Mock Adapters

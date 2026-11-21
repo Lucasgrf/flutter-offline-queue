@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:test/test.dart';
-import 'package:flutter_offline_queue/flutter_offline_queue.dart';
+import 'package:resilient_offline_queue/resilient_offline_queue.dart';
 
 void main() {
   late MockStorage storage;

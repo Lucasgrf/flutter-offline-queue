@@ -1,4 +1,4 @@
-# Flutter Offline Queue
+# Resilient Offline Queue (`resilient_offline_queue`)
 
 A clean, modular, and robust offline synchronization queue library for Flutter and Dart applications.
 
@@ -10,7 +10,7 @@ A clean, modular, and robust offline synchronization queue library for Flutter a
 
 In mobile networks, connectivity is fragile (subways, rural areas, thick walls). Enqueuing server mutations while offline is easy; keeping them **ordered, persistent, and synchronized without duplicates, race conditions, or battery drainage** is extremely hard. 
 
-`flutter_offline_queue` solves this by decoupling local storage and network monitoring from the queue execution engine. It implements a strict FIFO (First-In, First-Out) mutation synchronization pipeline with resilient retry rules.
+`resilient_offline_queue` solves this by decoupling local storage and network monitoring from the queue execution engine. It implements a strict FIFO (First-In, First-Out) mutation synchronization pipeline with resilient retry rules.
 
 ---
 
@@ -57,7 +57,7 @@ graph TD
 Implement the interfaces to connect your local storage engine (e.g. SQLite via Drift) and connection monitor:
 
 ```dart
-import 'package:flutter_offline_queue/flutter_offline_queue.dart';
+import 'package:resilient_offline_queue/resilient_offline_queue.dart';
 
 // SQLite/Drift implementation example
 class DriftQueueStorage implements QueueStorage {

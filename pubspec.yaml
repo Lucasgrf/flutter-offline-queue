@@ -1,7 +1,8 @@
-name: flutter_offline_queue
-description: A clean, modular, and robust offline synchronization queue for Flutter/Dart applications. Implements persistent queues, exponential backoff, and custom storage adapters.
+name: resilient_offline_queue
+description: A clean, modular, and robust offline synchronization queue for Flutter/Dart applications. Implements persistent FIFO queues, exponential backoff with jitter, and storage adapters.
 version: 1.0.0
-homepage: https://github.com/lucasgrf/flutter-offline-queue
+homepage: https://github.com/Lucasgrf/flutter-offline-queue
+repository: https://github.com/Lucasgrf/flutter-offline-queue
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
